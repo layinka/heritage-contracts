@@ -13,8 +13,9 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract VaultOwnerAssetFacet {
-    using Counters for Counters.Counter;
+    
     using SafeERC20 for IERC20;
+    using Counters for Counters.Counter;
 
     // IMPORTANT: AppStorage must be the first state variable in the facet.
     AppStorage internal s;
@@ -23,7 +24,7 @@ contract VaultOwnerAssetFacet {
 
     
 
-    Counters.Counter private _vaultCounter;
+    
 
     event CreateVault(
         bytes32 indexed vaultId,
@@ -51,7 +52,7 @@ contract VaultOwnerAssetFacet {
 
     // Signatory's addresses are added to this mapping per vault to
     // verify that the same signatory signature is not used more than once.
-    mapping(bytes32 => mapping(address => bool)) private verifiedSignatories;
+    // mapping(bytes32 => mapping(address => bool)) private verifiedSignatories;
 
     
 
@@ -86,8 +87,8 @@ contract VaultOwnerAssetFacet {
         LibTypes.SelectedSignatoryData[] memory selectedSignatories
     ) external returns (bytes32) {
         
-        _vaultCounter.increment(); 
-        bytes32 vaultId =  bytes32(_vaultCounter.current()); 
+        s.vaultCounter.increment(); 
+        bytes32 vaultId =  bytes32(s.vaultCounter.current()); 
 
         // Confirm that the agreed upon vaultData parameters have not expired
         if (vaultData.timestamp + s.expirationThreshold < block.timestamp ) {
@@ -152,7 +153,7 @@ contract VaultOwnerAssetFacet {
 
             // Add the vaultData identifier to signatory's list of vaults
             s.signatoryVaults[signer.signatoryAddress].push(vaultId);
-
+            s.signatoryAssetVaults[signer.signatoryAddress].push(vaultId);
             // Todo
             // // Move free bond to cursed bond on signatory
             // LibBonds.curseArchaeologist(vaultId, signer.archAddress);
@@ -177,6 +178,11 @@ contract VaultOwnerAssetFacet {
         // });
 
         // Add the identifier to the necessary data structures
+        
+        s.vaultOwnerAssetVaults[msg.sender].push(vaultId);
+        for (uint256 i = 0; i < vaultData.beneficiaries.length; i++) {
+            s.recipientAssetVaults[vaultData.beneficiaries[i].beneficiaryAddress].push(vaultId);
+        }
         
         // s.vaultOwnerVaults[msg.sender].push(vaultId);
         // s.recipientVaults[vaultData.recipient].push(vaultId);

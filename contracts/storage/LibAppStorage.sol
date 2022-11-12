@@ -2,8 +2,10 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "../libraries/LibTypes.sol";
 
+using Counters for Counters.Counter;
 
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
@@ -40,8 +42,12 @@ struct AppStorage {
 
     // vault ownerships
     mapping(address => bytes32[]) vaultOwnerVaults;
+    mapping(address => bytes32[]) vaultOwnerAssetVaults;
     mapping(address => bytes32[]) signatoryVaults;
+    mapping(address => bytes32[]) signatoryAssetVaults;
+
     mapping(address => bytes32[]) recipientVaults;
+    mapping(address => bytes32[]) recipientAssetVaults;
     // Mapping of unencrypted shard double hashes to signatories who are
     // responsible for them. Needed to optimise Accuse algo - unencrypted shard is
     // double hashed and used as a constant O(1) lookup here
@@ -54,6 +60,9 @@ struct AppStorage {
     //   LibTypes.SignatoryStorage bondedSignatory = vaultSignatories[vaultId][archAddress];
     //   uint256 diggingFees = bondedSignatory.diggingFees;
     mapping(bytes32 => mapping(address => LibTypes.SignatoryStorage)) vaultSignatories;
+
+
+    Counters.Counter vaultCounter;
 }
 
 library LibAppStorage {

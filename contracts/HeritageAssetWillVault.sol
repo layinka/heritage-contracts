@@ -134,6 +134,10 @@ contract HeritageAssetWillVault is Ownable {
 
     function isSignatory(address signatory) public view returns (bool) {
         return _signatoriesStatus[signatory];
+    }  
+
+    function isBeneficiary(address beneficiary) public view returns (bool) {
+        return _beneficiaryStatus[beneficiary];
     }    
     
     /**

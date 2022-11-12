@@ -27,6 +27,10 @@ This repository contains the smart contracts (and corresponding deployment scrip
 
 `npx hardhat node`
 
+
+### Transfer HeritageToken to an Address
+`npx hardhat run ./scripts/transfer.js --network localhost`
+
 ### Deploying
 
 `npx hardhat deploy --network <networkName>`

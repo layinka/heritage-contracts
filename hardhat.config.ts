@@ -25,6 +25,9 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   for (const account of accounts) {
     console.log(account.address);
   }
+
+  // const walletPrivateKey = new hre.ethers.Wallet('0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e');
+  // console.log('Pub key for ', walletPrivateKey.address, ' is ', walletPrivateKey.publicKey);
 });
 
 /**
@@ -81,6 +84,11 @@ const config: HardhatUserConfig = {
       default: 0,
       mainnet: `privatekey://${process.env.MAINNET_DEPLOYER_PRIVATE_KEY}`,
       goerli: `privatekey://${process.env.GOERLI_DEPLOYER_PRIVATE_KEY}`,
+    },
+    signatory: {
+      default: 1,
+      mainnet: `privatekey://${process.env.MAINNET_SIGNATORY_PRIVATE_KEY}`,
+      goerli: `privatekey://${process.env.GOERLI_SIGNATORY_PRIVATE_KEY}`,
     },
   },
   networks: {

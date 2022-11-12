@@ -252,16 +252,38 @@ contract ViewStateFacet {
         return s.vaults[vaultId];
     }
 
+    /// @notice Returns a vault.
+    /// @param vaultId The identifier of the vault being returned
+    function getAssetVault(bytes32 vaultId)
+        external
+        view
+        returns (address)
+    {
+        return s.assetVaults[vaultId];
+    }
+
     /// @notice Given an vaultOwner's address, returns the identifiers of all
     /// vaults that the vaultOwner has created.
     /// @param vaultOwner The address of the vaultOwner whose vaults are being
     /// returned
-    function getEmbalmerVaults(address vaultOwner)
+    function getVaultOwnerVaults(address vaultOwner)
         external
         view
         returns (bytes32[] memory)
     {
         return s.vaultOwnerVaults[vaultOwner];
+    }
+
+    /// @notice Given an vaultOwner's address, returns the identifiers of all
+    /// vaults that the vaultOwner has created.
+    /// @param vaultOwner The address of the vaultOwner whose vaults are being
+    /// returned
+    function getVaultOwnerAssetVaults(address vaultOwner)
+        external
+        view
+        returns (bytes32[] memory)
+    {
+        return s.vaultOwnerAssetVaults[vaultOwner];
     }
 
     /// @notice Given an signatory's address, returns the identifiers of all

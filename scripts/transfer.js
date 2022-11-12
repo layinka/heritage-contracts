@@ -22,6 +22,8 @@ const allowedNetworks = ["localhost"];
 
   await heritageToken.transfer(transferAddress, hre.ethers.BigNumber.from(amountToTransfer));
 
+  await heritageToken.transfer('0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199', hre.ethers.BigNumber.from(amountToTransfer));
+
   const newBalance = await heritageToken.balanceOf(transferAddress);
   console.log("account balance:", newBalance.toString());
 })();

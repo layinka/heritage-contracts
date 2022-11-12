@@ -19,12 +19,6 @@ contract VaultOwnerFacet {
     // IMPORTANT: AppStorage must be the first state variable in the facet.
     AppStorage internal s;
 
-    
-
-    
-
-    Counters.Counter private _vaultCounter;
-
     event CreateVault(
         bytes32 indexed vaultId,
         string name,
