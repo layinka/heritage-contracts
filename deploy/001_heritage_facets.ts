@@ -24,7 +24,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     heritageTokenAddress = process.env.HERITAGE_TOKEN_ADDRESS_GOERLI || "";
   } else if (["mainnet", "mainnet-fork"].includes(hre.hardhatArguments.network)) {
     heritageTokenAddress = process.env.HERITAGE_TOKEN_ADDRESS_MAINNET || "";
-  } else {
+  }
+  else if (["bttc_testnet", "bttc_testnet-fork"].includes(hre.hardhatArguments.network)) {
+    heritageTokenAddress = process.env.HERITAGE_TOKEN_ADDRESS_BTTC_TESTNET || "0x6400809865E8aff1EfE04DFDD948DFb0619331c2";
+  }
+  else {
     throw Error(`Heritage is not set up for this network: ${hre.hardhatArguments.network}`);
   }
 

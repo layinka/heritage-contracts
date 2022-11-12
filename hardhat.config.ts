@@ -78,7 +78,46 @@ task("generate-history", "Generates fake historical data for testing")
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.17",
+  solidity: {
+    compilers: [
+       {
+         version: "0.5.16",
+         settings: {
+         
+          optimizer: {
+            enabled: true,
+            runs: 200,
+            
+          }
+        }
+       },
+       {
+         version: "0.6.6",
+         settings: {
+         
+          optimizer: {
+            enabled: true,
+            runs: 200,
+            
+          }
+        }
+       },
+       {
+         version: "0.8.17",
+          settings: {
+            viaIR : true,
+            optimizer: {
+              enabled: true,
+              runs: 200,
+              details: {
+                // yul: true
+              }
+            }
+          }
+        }
+    ],
+    
+  },
   namedAccounts: {
     deployer: {
       default: 0,
@@ -110,6 +149,18 @@ const config: HardhatUserConfig = {
       accounts: {
         count: 300,
       },
+    },
+    bttc_testnet: {
+      url: "https://pre-rpc.bt.io",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY, process.env.PRIVATE_KEY_2] : [],
+      chainId: 1029,
+      gas: 10000000,
+      timeout: 200000
+    },
+   bttc: {
+      url: "https://rpc.bt.io",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY, process.env.PRIVATE_KEY_2] : [],
+      chainId: 199,
     },
   },
   gasReporter: {
