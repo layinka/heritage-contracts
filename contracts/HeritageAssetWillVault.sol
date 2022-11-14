@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./storage/LibAppStorage.sol";
 import "./libraries/LibTypes.sol";
 
+import "hardhat/console.sol";
+
 
 
 contract HeritageAssetWillVault is Ownable {
@@ -62,7 +64,7 @@ contract HeritageAssetWillVault is Ownable {
     }
     
     
-    constructor(address vaultOwner,bytes32 vaultId,string memory name, LibTypes.BeneficiaryDetails[] memory beneficiaries, address[] memory signatories) payable {
+    constructor(address vaultOwner,bytes32 vaultId,string memory name, LibTypes.BeneficiaryDetails[] memory beneficiaries, address[] memory signatories, uint256 expiryTime) payable {
         
         _vaultId=vaultId;
         _name=name;
@@ -79,8 +81,10 @@ contract HeritageAssetWillVault is Ownable {
             _signatories.push(signatories[s]);
             _signatoriesStatus[signatories[s]] = true;            
         }
-        
-        _expiryTime= block.timestamp + 30 days;
+        console.log('block.timestamp: ', block.timestamp );
+        console.log('_expiryTime: ', expiryTime );
+        require(block.timestamp < expiryTime, "Expiry Time already elapsed");
+        _expiryTime= expiryTime ; // block.timestamp + 30 days;
 
         _transferOwnership(vaultOwner);
 
@@ -163,6 +167,10 @@ contract HeritageAssetWillVault is Ownable {
         emit Refreshed(block.timestamp);
     }
 
+    function modifyDate() public {//for testing/demo purpose
+        _expiryTime= block.timestamp ;
+    }
+
 
     function signToRelease() public onlySignatory{
         address sender = msg.sender;
@@ -174,6 +182,34 @@ contract HeritageAssetWillVault is Ownable {
 
         emit SignedRelease(sender, block.timestamp);
     }
+
+    // function claimTest(address tokenOrCoin) public onlyBeneficiary{
+    //     address sender = msg.sender;
+    //     // require(block.timestamp > _expiryTime, "Expiry Time not reached");
+    //     // require(_signatorieswhoHaveSignedReleaseCount >= _signatoriesCount , "Not Enough Signatories have signed");
+    //     // require(_depositedCoinsStatus[tokenOrCoin], "Not enough Coin Balance");
+
+    //     uint256 balance = _getBalance(tokenOrCoin);
+    //     require(balance > 0, "Not enough Coin Balance");
+
+    //     LibTypes.BeneficiaryDetails memory benefeciary ;
+    //     uint i;
+    //     for(i=0; i< _beneficiaries.length; i++){
+    //         if(_beneficiaries[i].beneficiaryAddress== sender){
+    //             benefeciary = _beneficiaries[i];
+    //             break;
+    //         }
+    //     }
+    //     require(!benefeciary.claimed, "Already Claimed");
+
+    //     _beneficiaries[i].claimed=true;
+    //     uint256 claimableBalance = balance; // benefeciary.percent * balance / 100;
+    //     _sendCoinTo(sender, tokenOrCoin, claimableBalance);
+
+         
+
+    //     emit Claimed(sender, claimableBalance);
+    // }
 
     function claim(address tokenOrCoin) public onlyBeneficiary{
         address sender = msg.sender;
@@ -195,11 +231,47 @@ contract HeritageAssetWillVault is Ownable {
         require(!benefeciary.claimed, "Already Claimed");
 
         _beneficiaries[i].claimed=true;
-        uint256 claimableBalance = benefeciary.percent * balance / 100;
+        uint256 claimableBalance = benefeciary.percent * balance / 10000;
         _sendCoinTo(sender, tokenOrCoin, claimableBalance);
+
+         
 
         emit Claimed(sender, claimableBalance);
     }
+
+    // function testB () public view returns (uint256) {
+    //     uint256 balance = _getBalance(address(0));
+    //     return  _beneficiaries[0].percent * balance / 10000;
+    // }
+
+    // function claimAmount(address tokenOrCoin, uint256 amount) public onlyBeneficiary{
+    //     address sender = msg.sender;
+    //     require(block.timestamp > _expiryTime, "Expiry Time not reached");
+    //     require(_signatorieswhoHaveSignedReleaseCount >= _signatoriesCount , "Not Enough Signatories have signed");
+    //     require(_depositedCoinsStatus[tokenOrCoin], "Not enough Coin Balance");
+
+    //     uint256 balance = _getBalance(tokenOrCoin);
+    //     require(balance > 0, "Not enough Coin Balance");
+
+    //     LibTypes.BeneficiaryDetails memory benefeciary ;
+    //     uint i;
+    //     for(i=0; i< _beneficiaries.length; i++){
+    //         if(_beneficiaries[i].beneficiaryAddress== sender){
+    //             benefeciary = _beneficiaries[i];
+    //             break;
+    //         }
+    //     }
+    //     require(!benefeciary.claimed, "Already Claimed");
+
+    //     _beneficiaries[i].claimed=true;
+    //     uint256 claimableBalance = benefeciary.percent * balance / 100;
+    //     require(amount <= claimableBalance, "Not Enough Balance");
+    //     _sendCoinTo(sender, tokenOrCoin, amount);
+
+         
+
+    //     emit Claimed(sender, amount);
+    // }
 
     function _getBalance(address tokenOrCoin) private view returns(uint256){
         if(tokenOrCoin==address(0)){
@@ -211,8 +283,9 @@ contract HeritageAssetWillVault is Ownable {
 
     function _sendCoinTo(address recipient, address tokenOrCoin ,uint amount) private {
         if(tokenOrCoin==address(0)){
-            (bool success, ) = recipient.call{value: amount}("");
-            require(success, "Send Coin failed.");
+            payable(recipient).transfer(amount);
+            // (bool success, ) = recipient.call{value: amount}("");
+            // require(success, "Send Coin failed.");
         }else{
             IERC20(tokenOrCoin).safeTransfer(recipient, amount);
         }
@@ -249,6 +322,12 @@ contract HeritageAssetWillVault is Ownable {
         }else{
             return IERC20(tokenOrCoin).balanceOf(address(this));
         }
+    }
+
+
+    event Received(address, uint);
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
     }
     
 }

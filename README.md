@@ -31,6 +31,8 @@ This repository contains the smart contracts (and corresponding deployment scrip
 ### Transfer HeritageToken to an Address
 `npx hardhat run ./scripts/transfer.js --network localhost`
 
+`npx hardhat run ./scripts/transfer.js --network bttc_testnet`
+
 `npx hardhat run ./scripts/register-signatory.js --network localhost`
 
 `npx hardhat run ./scripts/register-signatory.js --network bttc_testnet`

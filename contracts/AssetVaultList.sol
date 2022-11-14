@@ -30,6 +30,16 @@ contract AssetVaultList {
     uint public _signatoriesCount;
 
     IERC20 _heritageToken;
+
+
+    
+    mapping(address => address[]) vaultOwnerVaults;
+    
+    mapping(address => address[]) signatoryVaults;   
+
+    mapping(address => address[]) beneficiaryVaults;
+
+    mapping(address => address[]) allOwnedVaults;
     
 
     event DepositFreeBond(address indexed signatory, uint256 depositedBond);
@@ -105,7 +115,8 @@ contract AssetVaultList {
     /// @return The index of the new Vault
     function createAssetVault(        
         LibTypes.CreateVaultData memory vaultData,
-        LibTypes.SelectedSignatoryData[] memory selectedSignatories
+        LibTypes.SelectedSignatoryData[] memory selectedSignatories,
+        uint256 expiryTime
     ) external returns (bytes32) {
         
         vaultCounter.increment(); 
@@ -149,17 +160,25 @@ contract AssetVaultList {
                     unencryptedShardDoubleHash: bytes32(0),
                     unencryptedShard: new bytes(0)
                 });
-
-            
-            
-
             // Add the signatory address to the list of addresses to be
             // passed in to the vaultData object
             signatories[i] = signer.signatoryAddress;
+
+            allOwnedVaults[signer.signatoryAddress].push();
         }
 
         // Create the vaultData object and store it in AppStorage
-        assetVaults[vaultId] = address(new HeritageAssetWillVault(msg.sender, vaultId,vaultData.name,vaultData.beneficiaries, signatories) );
+        assetVaults[vaultId] = address(new HeritageAssetWillVault(msg.sender, vaultId,vaultData.name,vaultData.beneficiaries, signatories, expiryTime) );
+
+        for (uint256 i = 0; i < selectedSignatories.length; i++) {
+            LibTypes.SelectedSignatoryData memory signer = selectedSignatories[i];
+            
+            allOwnedVaults[signer.signatoryAddress].push(assetVaults[vaultId]);
+        }
+
+        allOwnedVaults[vaultData.beneficiaries[0].beneficiaryAddress].push(assetVaults[vaultId]);
+
+        allOwnedVaults[msg.sender].push(assetVaults[vaultId]);
         
         //  LibTypes.Vault({
         //     name: vaultData.name,
@@ -220,6 +239,10 @@ contract AssetVaultList {
 
         // Return the index of the vaultData
         return vaultId;
+    }
+
+    function getMyVaults() public view returns (address[] memory){
+        return allOwnedVaults[msg.sender];
     }
 
 

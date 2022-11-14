@@ -84,7 +84,8 @@ contract VaultOwnerAssetFacet {
     /// @return The index of the new Vault
     function createAssetVault(        
         LibTypes.CreateVaultData memory vaultData,
-        LibTypes.SelectedSignatoryData[] memory selectedSignatories
+        LibTypes.SelectedSignatoryData[] memory selectedSignatories,
+        uint256 expiryTime
     ) external returns (bytes32) {
         
         s.vaultCounter.increment(); 
@@ -164,7 +165,7 @@ contract VaultOwnerAssetFacet {
         }
 
         // Create the vaultData object and store it in AppStorage
-        s.assetVaults[vaultId] = address(new HeritageAssetWillVault(msg.sender, vaultId,vaultData.name,vaultData.beneficiaries, signatories) );
+        s.assetVaults[vaultId] = address(new HeritageAssetWillVault(msg.sender, vaultId,vaultData.name,vaultData.beneficiaries, signatories, expiryTime) );
         
         //  LibTypes.Vault({
         //     name: vaultData.name,
